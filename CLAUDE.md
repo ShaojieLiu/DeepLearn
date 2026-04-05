@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 book/     # 教材正文，按卷/章组织，中文文件名，有序编号
 code/     # 实战代码，按教学阶段递进组织（01 → 05 → 90）
 docs/     # 计划文件（docs/plans/）
-meta/     # 方法论沉淀：原则、方法、经验积累、skill 构想
+meta/     # 方法论沉淀：原则、方法、经验、skill 构想
 ```
 
 ### `code/` 阶段说明
@@ -72,8 +72,8 @@ meta/     # 方法论沉淀：原则、方法、经验积累、skill 构想
 
 `meta/` 是本项目的先验上下文，每次对话应优先参考其中已沉淀的原则和方法：
 - `meta/01-原则/`：项目原则、agent 沟通原则
-- `meta/02-方法/`：学习与复盘方法
-- `meta/03-积累/`：经验积累
+- `meta/02-方法/`：学习循环与复盘模板
+- `meta/03-积累/`：按主题拆分的经验文件
 - `meta/04-skill/`：skill 构想方向
 
 输出要求：不只给结论，要说明为什么；不只写代码，要说明与教材的关系。

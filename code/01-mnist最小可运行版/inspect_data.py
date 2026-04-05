@@ -23,7 +23,7 @@ test_dataset = datasets.MNIST(
 print("train size:", len(train_dataset))
 print("test size:", len(test_dataset))
 
-x, y = train_dataset[0]
+x, y = train_dataset[2]
 print("sample shape:", tuple(x.shape))
 print("sample label:", y)
 
