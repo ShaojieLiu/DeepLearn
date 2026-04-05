@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+
+# Test / tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Training artifacts
+*.pt
+*.pth
+*.ckpt
+*.log
+
+# Runtime outputs
+code/90-工程化整理版/outputs/**
+!code/90-工程化整理版/outputs/
+
+# Downloaded datasets
+data/mnist/**
+!data/mnist/
+
