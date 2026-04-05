@@ -26,10 +26,12 @@ venv/
 *.log
 
 # Runtime outputs
+outputs/**
+!outputs/
 code/90-工程化整理版/outputs/**
 !code/90-工程化整理版/outputs/
 
 # Downloaded datasets
-data/mnist/**
-!data/mnist/
-
+data/**
+!data/
+!data/readme.md
