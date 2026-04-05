@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 目录结构
 
 ```
-book/     # 教材正文，按卷/章组织，中文文件名，有序编号
+book/     # 教材正文，按章/节组织，中文文件名，有序编号
 code/     # 实战代码，按教学阶段递进组织（01 → 05 → 90）
 docs/     # 计划文件（docs/plans/）
 meta/     # 方法论沉淀：原则、方法、经验、skill 构想
@@ -59,7 +59,7 @@ meta/     # 方法论沉淀：原则、方法、经验、skill 构想
 
 当前正在完成 **MNIST 主线闭环**（阶段 A→D），在此之前暂缓 CNN、ResNet、Transformer、Diffusion 正文细写。
 
-阶段顺序：A（最小可运行）→ B（同步教材）→ C（从零实现）→ D（PyTorch 对照）
+阶段顺序：A（最小可运行）→ B（教材细化）→ C（从零实现）→ D（PyTorch 对照）
 
 计划详情见 `docs/plans/readme.md` 和 `docs/plans/阶段A-MNIST最小可运行版本计划.md`。
 
