@@ -26,7 +26,38 @@ source .venv/bin/activate
 
 本次实验使用的脚本是：
 
-`code/01-mnist最小可运行版/train.py`
+1. `code/01-mnist最小可运行版/inspect_data.py`
+2. `code/01-mnist最小可运行版/train.py`
+
+先用 `inspect_data.py` 检查数据链路，再用 `train.py` 跑最小训练闭环。
+
+## 4. 数据检查结果
+
+先执行：
+
+```bash
+source .venv/bin/activate
+python "code/01-mnist最小可运行版/inspect_data.py"
+```
+
+本次实际输出如下：
+
+```text
+train size: 60000
+test size: 10000
+sample shape: (1, 28, 28)
+sample label: 5
+saved sample image to data/mnist/sample.png
+```
+
+这组输出说明：
+
+1. 训练集和测试集都已成功加载
+2. 单张样本的形状是 `(1, 28, 28)`
+3. 当前样本标签为 `5`
+4. 样本图已经成功保存到本地
+
+## 5. 训练命令
 
 运行命令如下：
 
@@ -35,7 +66,7 @@ source .venv/bin/activate
 python "code/01-mnist最小可运行版/train.py"
 ```
 
-## 4. 关键参数
+## 6. 关键参数
 
 当前脚本中使用的关键参数如下：
 
@@ -45,7 +76,7 @@ python "code/01-mnist最小可运行版/train.py"
 4. 优化器使用 `Adam`
 5. 模型是最小两层 `MLP`
 
-## 5. 实际输出结果
+## 7. 实际输出结果
 
 本次实际运行输出如下：
 
@@ -55,7 +86,7 @@ epoch=2, test_acc=0.9622
 epoch=3, test_acc=0.9670
 ```
 
-## 6. 结果说明
+## 8. 结果说明
 
 这组结果至少说明了三件事：
 
@@ -74,7 +105,7 @@ epoch=3, test_acc=0.9670
 
 这四部分组成的第一层闭环。
 
-## 7. 当前已知边界
+## 9. 当前已知边界
 
 这一版已经能训练和评估，但还没有展开下面这些内容：
 
@@ -86,7 +117,7 @@ epoch=3, test_acc=0.9670
 
 这些内容会在后续章节中逐步展开，不在当前最小版本里继续堆复杂度。
 
-## 8. 当前结论
+## 10. 当前结论
 
 `phase A` 的核心目标已经达成：
 
