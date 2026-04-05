@@ -65,9 +65,9 @@
 
 如果一个模型在训练集表现很好，但在测试集表现差，通常说明它并没有真正学会泛化。
 
-## 5. 当前phase A里，你最需要观察什么
+## 5. 当前阶段里，你最需要观察什么
 
-在 `phase A`，你最需要观察的不是复杂指标，而是以下几件事：
+在当前阶段，你最需要观察的不是复杂指标，而是以下几件事：
 
 1. 数据能不能正常加载
 2. 样本图像和标签是不是对应正确
@@ -89,9 +89,78 @@
 
 也就是说，这一章不是纯理论，它应该直接帮助你判断自己写出来的第一版代码是不是在做正确的事。
 
-## 7. phase A 第一版代码应该怎么写
+## 7. 第一版代码应该怎么写
 
-如果你现在是第一次动手，最推荐的做法不是先设计很多文件，而是先写一个最小脚本：
+如果你现在是第一次动手，我建议分两步，而不是直接上训练脚本。
+
+### 第一步：先只验证数据链路
+
+先写一个更小的脚本：
+
+`code/01-mnist最小可运行版/inspect_data.py`
+
+这个脚本只做四件事：
+
+1. 下载 `MNIST`
+2. 打印训练集和测试集大小
+3. 打印一条样本的 shape 和标签
+4. 保存一张样本图，确认数据真的读到了
+
+参考代码如下：
+
+```python
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+from torchvision import datasets, transforms
+
+
+DATA_DIR = Path("data/mnist")
+
+train_dataset = datasets.MNIST(
+    root=DATA_DIR,
+    train=True,
+    download=True,
+    transform=transforms.ToTensor(),
+)
+
+test_dataset = datasets.MNIST(
+    root=DATA_DIR,
+    train=False,
+    download=True,
+    transform=transforms.ToTensor(),
+)
+
+print("train size:", len(train_dataset))
+print("test size:", len(test_dataset))
+
+x, y = train_dataset[0]
+print("sample shape:", tuple(x.shape))
+print("sample label:", y)
+
+plt.imshow(x.squeeze(0), cmap="gray")
+plt.title(f"label={y}")
+plt.axis("off")
+plt.savefig("data/mnist/sample.png")
+print("saved sample image to data/mnist/sample.png")
+```
+
+运行命令：
+
+```bash
+source .venv/bin/activate
+python "code/01-mnist最小可运行版/inspect_data.py"
+```
+
+如果一切正常，你应该能看到：
+
+1. `MNIST` 自动下载到 `data/mnist/`
+2. 终端里打印训练集和测试集大小
+3. `data/mnist/sample.png` 被成功保存
+
+### 第二步：再写最小训练脚本
+
+确认数据没问题之后，再写训练脚本：
 
 `code/01-mnist最小可运行版/train.py`
 
@@ -216,7 +285,7 @@ python "code/01-mnist最小可运行版/train.py"
 3. 更复杂的评价指标
 4. 更复杂的网络结构
 
-这些内容后面会出现，但不属于 `phase A` 的重点。
+这些内容后面会出现，但不属于当前阶段的重点。
 
 ## 11. 本章小结
 
@@ -224,4 +293,4 @@ python "code/01-mnist最小可运行版/train.py"
 
 “输入一张数字图片，输出它属于 `0` 到 `9` 中的哪一类。”
 
-而 `phase A` 的代码任务，就是把这句话第一次真正跑起来。
+而当前阶段的代码任务，就是把这句话第一次真正跑起来。
