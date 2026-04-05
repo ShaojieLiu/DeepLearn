@@ -1,0 +1,227 @@
+# MNIST数据集与分类任务
+
+这一章的目标是把你即将写的代码背后的任务定义讲清楚。
+
+在开始写 `MNIST` 代码之前，你至少应该知道自己在处理什么数据、要解决什么问题、最终想得到什么结果。
+
+## 1. MNIST 是什么
+
+`MNIST` 是一个经典的手写数字图像数据集。
+
+它的任务很简单：
+
+给模型一张手写数字图片，让模型判断这张图片是 `0` 到 `9` 中的哪一个数字。
+
+所以这是一个标准的多分类任务。
+
+## 2. 一条样本包含什么
+
+你可以把一条 `MNIST` 样本理解成：
+
+1. 一张灰度图像
+2. 一个整数标签
+
+其中：
+
+1. 图像是输入
+2. 标签是正确答案
+
+模型训练的目标，就是让模型从输入图像中学会预测正确的标签。
+
+## 3. 这类任务的输入和输出是什么
+
+在 `MNIST` 中：
+
+### 输入
+
+一张数字图片。
+
+如果你使用最简单的全连接网络，通常会把图片展平成一维向量后再输入模型。
+
+### 输出
+
+模型会输出 `10` 个类别对应的分数或概率，分别代表：
+
+1. 它有多像 `0`
+2. 它有多像 `1`
+3. 它有多像 `2`
+4. 一直到 `9`
+
+最终分数最高的那个类别，就是模型的预测结果。
+
+## 4. 训练集和测试集分别干什么
+
+这一步非常重要。
+
+### 训练集
+
+训练集用于让模型学习参数。
+
+也就是说，模型会反复看训练集中的样本，不断调整自己的权重。
+
+### 测试集
+
+测试集用于检查模型在“没见过的数据”上的表现。
+
+如果一个模型在训练集表现很好，但在测试集表现差，通常说明它并没有真正学会泛化。
+
+## 5. 当前phase A里，你最需要观察什么
+
+在 `phase A`，你最需要观察的不是复杂指标，而是以下几件事：
+
+1. 数据能不能正常加载
+2. 样本图像和标签是不是对应正确
+3. 输入到模型前的数据 shape 是什么
+4. 模型输出是不是 10 个类别
+5. 训练后测试准确率有没有明显高于随机猜测
+
+只要这几件事成立，你就已经建立了关于 `MNIST` 任务的第一层真实理解。
+
+## 6. 这一章和代码怎么对应
+
+如果你现在要写 `code/01-mnist最小可运行版/`，这一章实际对应的是以下动作：
+
+1. 下载或读取 `MNIST`
+2. 打印训练集和测试集大小
+3. 查看几张样本图和对应标签
+4. 确认输入张量形状
+5. 确认模型输出维度为 `10`
+
+也就是说，这一章不是纯理论，它应该直接帮助你判断自己写出来的第一版代码是不是在做正确的事。
+
+## 7. phase A 第一版代码应该怎么写
+
+如果你现在是第一次动手，最推荐的做法不是先设计很多文件，而是先写一个最小脚本：
+
+`code/01-mnist最小可运行版/train.py`
+
+第一版脚本建议只做这几件事：
+
+1. 从 `data/mnist/` 下载并加载数据
+2. 定义一个最简单的两层 `MLP`
+3. 训练 `3` 到 `5` 个 `epoch`
+4. 输出测试集准确率
+
+下面是一份可以直接作为第一版参考的最小代码骨架：
+
+```python
+from pathlib import Path
+
+import torch
+from torch import nn
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
+
+
+DATA_DIR = Path("data/mnist")
+BATCH_SIZE = 64
+EPOCHS = 3
+LR = 1e-3
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+transform = transforms.ToTensor()
+
+train_dataset = datasets.MNIST(
+    root=DATA_DIR,
+    train=True,
+    download=True,
+    transform=transform,
+)
+
+test_dataset = datasets.MNIST(
+    root=DATA_DIR,
+    train=False,
+    download=True,
+    transform=transform,
+)
+
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
+
+
+model = nn.Sequential(
+    nn.Flatten(),
+    nn.Linear(28 * 28, 128),
+    nn.ReLU(),
+    nn.Linear(128, 10),
+).to(DEVICE)
+
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=LR)
+
+
+for epoch in range(EPOCHS):
+    model.train()
+    for x, y in train_loader:
+        x, y = x.to(DEVICE), y.to(DEVICE)
+        logits = model(x)
+        loss = criterion(logits, y)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    model.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for x, y in test_loader:
+            x, y = x.to(DEVICE), y.to(DEVICE)
+            logits = model(x)
+            pred = logits.argmax(dim=1)
+            correct += (pred == y).sum().item()
+            total += y.size(0)
+
+    acc = correct / total
+    print(f"epoch={epoch + 1}, test_acc={acc:.4f}")
+```
+
+这份代码的意义不是“最终版本就应该这样写”，而是：
+
+1. 它足够短
+2. 它足够直观
+3. 它能先帮你把闭环跑起来
+
+## 8. 应该怎么运行这份代码
+
+假设你已经在项目根目录准备好了虚拟环境和依赖，那么运行命令就是：
+
+```bash
+source .venv/bin/activate
+python "code/01-mnist最小可运行版/train.py"
+```
+
+如果一切正常，你应该能看到：
+
+1. `MNIST` 自动下载到 `data/mnist/`
+2. 每个 `epoch` 输出一次测试集准确率
+3. 准确率明显高于随机猜测
+
+## 9. 这份第一版代码你应该重点看什么
+
+第一次跑通后，不要急着优化，先重点观察：
+
+1. `DATA_DIR` 为什么指向 `data/mnist`
+2. `Flatten()` 为什么需要出现
+3. 为什么最后一层输出是 `10`
+4. 为什么 `CrossEntropyLoss` 适合这个任务
+5. 为什么测试时要 `model.eval()` 和 `torch.no_grad()`
+
+## 10. 当前阶段不必深挖的内容
+
+在当前阶段，你还不必深入纠结以下问题：
+
+1. 底层数据文件格式
+2. 更复杂的数据增强
+3. 更复杂的评价指标
+4. 更复杂的网络结构
+
+这些内容后面会出现，但不属于 `phase A` 的重点。
+
+## 11. 本章小结
+
+当前你可以把 `MNIST` 任务理解成一句最简单的话：
+
+“输入一张数字图片，输出它属于 `0` 到 `9` 中的哪一类。”
+
+而 `phase A` 的代码任务，就是把这句话第一次真正跑起来。
