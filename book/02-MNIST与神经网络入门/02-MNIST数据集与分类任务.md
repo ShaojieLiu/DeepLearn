@@ -117,6 +117,7 @@ from torchvision import datasets, transforms
 
 DATA_DIR = Path("data/mnist")
 
+# ToTensor 会把图片转成张量，后面才能继续做计算。
 train_dataset = datasets.MNIST(
     root=DATA_DIR,
     train=True,
@@ -131,13 +132,16 @@ test_dataset = datasets.MNIST(
     transform=transforms.ToTensor(),
 )
 
+# 先确认训练集和测试集都成功拿到了。
 print("train size:", len(train_dataset))
 print("test size:", len(test_dataset))
 
+# x 是图片张量，y 是这张图片对应的数字标签。
 x, y = train_dataset[0]
 print("sample shape:", tuple(x.shape))
 print("sample label:", y)
 
+# squeeze(0) 会去掉最前面的通道维，方便按灰度图显示。
 plt.imshow(x.squeeze(0), cmap="gray")
 plt.title(f"label={y}")
 plt.axis("off")
@@ -157,6 +161,10 @@ python "code/01-mnist最小可运行版/inspect_data.py"
 1. `MNIST` 自动下载到 `data/mnist/`
 2. 终端里打印训练集和测试集大小
 3. `data/mnist/sample.png` 被成功保存
+
+下面这张图就是当前项目里实际保存出来的第一张 `MNIST` 样本图：
+
+![MNIST样本图](../images/mnist/sample.png)
 
 ### 第二步：再写最小训练脚本
 
@@ -189,6 +197,7 @@ LR = 1e-3
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
+# transform 负责把原始图片转成张量。
 transform = transforms.ToTensor()
 
 train_dataset = datasets.MNIST(
@@ -205,10 +214,12 @@ test_dataset = datasets.MNIST(
     transform=transform,
 )
 
+# DataLoader 会按批次取数据，避免一次把全部样本送进模型。
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
 
+# Flatten 会把 28x28 图像拉平成一维向量，便于接全连接层。
 model = nn.Sequential(
     nn.Flatten(),
     nn.Linear(28 * 28, 128),
@@ -216,20 +227,24 @@ model = nn.Sequential(
     nn.Linear(128, 10),
 ).to(DEVICE)
 
+# 这里先把它理解成“当前分类任务用来计算误差的函数”就够了。
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 
 
 for epoch in range(EPOCHS):
+    # train() 表示进入训练模式。
     model.train()
     for x, y in train_loader:
         x, y = x.to(DEVICE), y.to(DEVICE)
         logits = model(x)
         loss = criterion(logits, y)
+        # 每一轮反向传播前，都要先清空上一次留下的梯度。
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
+    # 测试前先切到评估状态，这一段只做预测，不更新参数。
     model.eval()
     correct = 0
     total = 0
@@ -237,6 +252,7 @@ for epoch in range(EPOCHS):
         for x, y in test_loader:
             x, y = x.to(DEVICE), y.to(DEVICE)
             logits = model(x)
+            # argmax 会取出分数最高的类别，作为当前预测结果。
             pred = logits.argmax(dim=1)
             correct += (pred == y).sum().item()
             total += y.size(0)
@@ -273,8 +289,16 @@ python "code/01-mnist最小可运行版/train.py"
 1. `DATA_DIR` 为什么指向 `data/mnist`
 2. `Flatten()` 为什么需要出现
 3. 为什么最后一层输出是 `10`
-4. 为什么 `CrossEntropyLoss` 适合这个任务
-5. 为什么测试时要 `model.eval()` 和 `torch.no_grad()`
+4. 这里为什么还需要一个“计算误差”的函数
+5. 为什么测试时要先切到评估状态，并且只做预测不更新参数
+
+这些问题在当前阶段可以先记住下面这组直观答案：
+
+1. `DATA_DIR` 指向共享数据目录，这样后面几个阶段可以复用同一份 `MNIST`
+2. `Flatten()` 的作用，是把一张 `28 x 28` 的图片拉平成一串数字，方便送进全连接层
+3. 最后一层输出是 `10`，因为我们要在 `0` 到 `9` 这 `10` 个类别里做选择
+4. “计算误差”的函数用来衡量模型这次预测得有多离谱，模型才能据此继续调整
+5. 测试阶段只想看模型现在表现如何，不想在这一步继续学习，所以要切到评估状态，并停止参数更新
 
 ## 10. 当前阶段不必深挖的内容
 
@@ -294,3 +318,7 @@ python "code/01-mnist最小可运行版/train.py"
 “输入一张数字图片，输出它属于 `0` 到 `9` 中的哪一类。”
 
 而当前阶段的代码任务，就是把这句话第一次真正跑起来。
+
+本章对应的实际运行记录见：
+
+[`book/08-实验记录/01-MNIST最小可运行版实验记录.md`](/Users/liushaojie/WebstormProjects/Project/01_Projects/DeepLearn/book/08-实验记录/01-MNIST最小可运行版实验记录.md)
